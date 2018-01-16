@@ -6,8 +6,10 @@ extern crate serde_derive;
 extern crate serde_json;
 
 mod controller;
+mod model;
 
-use controller::Controller;
+use controller::*;
+use model::*;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -24,81 +26,7 @@ use stdweb::web::event::{
     HashChangeEvent
 };
 
-#[derive(Clone, Serialize, Deserialize)]
-struct Todo {
-    title: String,
-    completed: bool
-}
-
-#[derive(Serialize, Deserialize)]
-struct State {
-    todo_list: Vec< Todo >
-}
-
-impl State {
-    fn new() -> Self {
-        State {
-            todo_list: Vec::new()
-        }
-    }
-}
-
-type StateRef = Rc<RefCell<State>>;
-type ControllerRef = Rc<RefCell<Box<Controller<State>>>>;
-
-struct RootController {
-}
-
-impl Controller<State> for RootController {
-    fn navigate<'a>(&self, state: &'a mut State) {
-        js! {
-            console.log("root navigated");
-        };
-    }
-
-    fn leave<'a>(&self, state: &'a mut State) {
-        js! {
-            console.log("root left");
-        };
-    }
-}
-
-struct ActiveController {
-}
-
-impl Controller<State> for ActiveController {
-    fn navigate<'a>(&self, state: &'a mut State) {
-        js! {
-            console.log("active navigated");
-        };
-    }
-
-    fn leave<'a>(&self, state: &'a mut State) {
-        js! {
-            console.log("active left");
-        };
-    }
-}
-
-struct CompletedController {
-}
-
-impl Controller<State> for CompletedController {
-    fn navigate<'a>(&self, state: &'a mut State) {
-        js! {
-            console.log("completed navigated");
-        };
-    }
-
-    fn leave<'a>(&self, state: &'a mut State) {
-        js! {
-            console.log("completed left");
-        };
-    }
-}
-
-
-fn update_dom(state: &StateRef, controller: &ControllerRef) {
+fn update_dom(state: &StateRef, controller: &ControllerRef<State>) {
     let mut state_borrow = state.borrow_mut();
     let mut controller_borrow = controller.borrow_mut();
 
@@ -131,7 +59,7 @@ fn main() {
         }).
         unwrap_or_else(State::new)));
 
-    let mut controller: ControllerRef = Rc::new(RefCell::new(Box::new(RootController { })));
+    let mut controller: ControllerRef<State> = Rc::new(RefCell::new(Box::new(RootController { })));
 
     window().add_event_listener({
         let state = state.clone();
