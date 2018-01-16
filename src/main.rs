@@ -20,13 +20,9 @@ use stdweb::web::{
     window
 };
 
-use stdweb::web::event::{
-    IEvent,
-    ConcreteEvent,
-    HashChangeEvent
-};
+use stdweb::web::event::HashChangeEvent;
 
-fn update_dom(state: &StateRef, controller: &ControllerRef<State>) {
+fn navigate(state: &StateRef, controller: &ControllerRef<State>) {
     let mut state_borrow = state.borrow_mut();
     let mut controller_borrow = controller.borrow_mut();
 
@@ -35,41 +31,32 @@ fn update_dom(state: &StateRef, controller: &ControllerRef<State>) {
     // pick controller from route
     let hash = document().location().unwrap().hash();
     *controller_borrow = match hash.as_str() {
-        "#/active" => Box::new(ActiveController { }),
-        "#/completed" => Box::new(CompletedController { }),
-        _ => Box::new(RootController { }),
+        //"#/active" => Box::new(ActiveController { }),
+        //"#/completed" => Box::new(CompletedController { }),
+        _ => Box::new(RootController::new()),
     };
 
     controller_borrow.navigate(&mut state_borrow);
 
-    // Save the state into local storage.
-    let state_json = serde_json::to_string(&*state_borrow).unwrap();
-    window().local_storage().insert("state", state_json.as_str());
+    state_borrow.save();
 }
 
 fn main() {
     stdweb::initialize();
 
-    let state = Rc::new(RefCell::new(
-        window().
-        local_storage().
-        get("state").
-        and_then(|state_json| {
-            serde_json::from_str(state_json.as_str()).ok()
-        }).
-        unwrap_or_else(State::new)));
+    let state = State::get_from_storage();
 
-    let mut controller: ControllerRef<State> = Rc::new(RefCell::new(Box::new(RootController { })));
+    let mut controller: ControllerRef<State> = Rc::new(RefCell::new(Box::new(RootController::new())));
 
     window().add_event_listener({
         let state = state.clone();
         let controller = controller.clone();
 
         move |_: HashChangeEvent| {
-            update_dom(&state, &controller);
+            navigate(&state, &controller);
         }
     });
 
-    update_dom(&state, &controller);
+    navigate(&state, &controller);
     stdweb::event_loop();
 }
