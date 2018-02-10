@@ -5,15 +5,15 @@ use serde_json;
 
 use stdweb::web::window;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct Todo {
-    title: String,
-    completed: bool
+    pub title: String,
+    pub completed: bool
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct State {
-    todo_list: Vec<Todo>
+    pub todo_list: Vec<Todo>
 }
 
 impl State {

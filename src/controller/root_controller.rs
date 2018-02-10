@@ -6,13 +6,17 @@ use stdweb::web::{
 };
 
 use stdweb::web::event::{
-    KeypressEvent,
+    IEvent,
+    IKeyboardEvent,
+    KeyPressEvent,
 };
+
+use stdweb::web::IParentNode;
 
 use stdweb::web::html_element::InputElement;
 
 use controller::{Controller, ControllerRef};
-use model::{State, StateRef};
+use model::{State, StateRef, Todo};
 
 pub struct RootController {
     title_entry: InputElement,
@@ -21,9 +25,10 @@ pub struct RootController {
 impl Controller<StateRef> for RootController {
     fn navigate<'a>(&mut self, state: &'a StateRef, controller_ref: &ControllerRef<StateRef>) {
         self.title_entry.add_event_listener({
-            let state = state.clone();
-            move |event: KeypressEvent|  {
-                RootController::key_press(&state, event);
+            let mut state = state.clone();
+            move |event: KeyPressEvent|  {
+                let mut state = state.borrow_mut();
+                RootController::key_press(&mut state, event);
             }
         });
     }
@@ -34,13 +39,22 @@ impl Controller<StateRef> for RootController {
 
 impl RootController {
     pub fn new() -> Self {
-        let title_entry: InputElement = document().query_selector(".new-todo").unwrap().try_into().unwrap();
+        let title_entry: InputElement = document().query_selector(".new-todo").unwrap().unwrap().try_into().unwrap();
         RootController { title_entry }
     }
 
-    fn key_press<'a>(state: &'a StateRef, event: KeypressEvent) {
-        js! {
-            console.log("key press" + @{&event});
+    fn key_press<'a>(state: &'a mut State, event: KeyPressEvent) {
+        if event.key() == "Enter" {
+            event.prevent_default();
+
+            let title_box: InputElement = document().query_selector(".new-todo").unwrap().unwrap().try_into().unwrap();
+            let title = title_box.value().try_into().unwrap();
+
+            state.todo_list.push(Todo { title, completed: false });
+
+            js! {
+                console.log(@{format!("{:?}", state.todo_list.clone())});
+            }
         }
     }
 }

@@ -24,7 +24,7 @@ use stdweb::web::event::HashChangeEvent;
 
 fn navigate(state: &StateRef, controller: &ControllerRef<StateRef>) {
     // pick controller from route
-    let hash = document().location().unwrap().hash();
+    let hash = document().location().unwrap().hash().unwrap();
     let controller_new = match hash.as_str() {
         //"#/active" => Box::new(ActiveController { }),
         //"#/completed" => Box::new(CompletedController { }),
