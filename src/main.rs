@@ -22,22 +22,24 @@ use stdweb::web::{
 
 use stdweb::web::event::HashChangeEvent;
 
-fn navigate(state: &StateRef, controller: &ControllerRef<State>) {
-    let mut state_borrow = state.borrow_mut();
-    let mut controller_borrow = controller.borrow_mut();
-
-    controller_borrow.leave(&mut state_borrow);
-
+fn navigate(state: &StateRef, controller: &ControllerRef<StateRef>) {
     // pick controller from route
     let hash = document().location().unwrap().hash();
-    *controller_borrow = match hash.as_str() {
+    let controller_new = match hash.as_str() {
         //"#/active" => Box::new(ActiveController { }),
         //"#/completed" => Box::new(CompletedController { }),
         _ => Box::new(RootController::new()),
     };
 
-    controller_borrow.navigate(&mut state_borrow);
+    let mut controller_old = controller.replace(controller_new);
 
+    controller_old.leave(state);
+    drop(controller_old);
+
+    let mut controller_borrow = controller.borrow_mut();
+    controller_borrow.navigate(state, controller);
+
+    let state_borrow = state.borrow();
     state_borrow.save();
 }
 
@@ -46,7 +48,7 @@ fn main() {
 
     let state = State::get_from_storage();
 
-    let mut controller: ControllerRef<State> = Rc::new(RefCell::new(Box::new(RootController::new())));
+    let controller: ControllerRef<StateRef> = ControllerRef::new(Box::new(RootController::new()));
 
     window().add_event_listener({
         let state = state.clone();
