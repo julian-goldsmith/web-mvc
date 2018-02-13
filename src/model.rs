@@ -23,15 +23,14 @@ impl State {
         }
     }
 
-    pub fn get_from_storage() -> Rc<RefCell<Self>> {
-        Rc::new(RefCell::new(
-            window().
-            local_storage().
-            get("state").
-            and_then(|state_json| {
-                serde_json::from_str(state_json.as_str()).ok()
-            }).
-            unwrap_or_else(State::new)))
+    pub fn get_from_storage() -> Self {
+        window().
+        local_storage().
+        get("state").
+        and_then(|state_json| {
+            serde_json::from_str(state_json.as_str()).ok()
+        }).
+        unwrap_or_else(State::new)
     }
 
     pub fn save(&self) {
@@ -40,5 +39,3 @@ impl State {
         window().local_storage().insert("state", state_json.as_str());
     }
 }
-
-pub type StateRef = Rc<RefCell<State>>;

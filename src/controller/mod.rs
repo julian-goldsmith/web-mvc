@@ -11,30 +11,30 @@ pub mod root_controller;
 //pub use completed_controller::CompletedController;
 pub use root_controller::RootController;
 
-pub trait Controller<State> {
+pub trait Controller {
     // FIXME: return values
     // navigate sets up event listeners
-    fn navigate<'a>(&mut self, state: &'a State, controller_ref: &ControllerRef<State>);
+    fn navigate(&mut self, controller_ref: &ControllerRef);
     
     // leave tears down event listeners
-    fn leave<'a>(&mut self, state: &'a State);
+    fn leave(&mut self);
 }
 
 #[derive(Clone)]
-pub struct ControllerRef<State> {
-    inner: Rc<RefCell<Box<Controller<State>>>>,
+pub struct ControllerRef {
+    inner: Rc<RefCell<Box<Controller>>>,
 }
 
-impl<State> Deref for ControllerRef<State> {
-    type Target = Rc<RefCell<Box<Controller<State>>>>;
+impl Deref for ControllerRef {
+    type Target = Rc<RefCell<Box<Controller>>>;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl<State> ControllerRef<State> {
-    pub fn new(controller: Box<Controller<State>>) -> ControllerRef<State> {
+impl ControllerRef {
+    pub fn new(controller: Box<Controller>) -> ControllerRef {
         ControllerRef {
             inner: Rc::new(RefCell::new(controller))
         }

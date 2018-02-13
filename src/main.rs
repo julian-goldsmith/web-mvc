@@ -22,7 +22,7 @@ use stdweb::web::{
 
 use stdweb::web::event::HashChangeEvent;
 
-fn navigate(state: &StateRef, controller: &ControllerRef<StateRef>) {
+fn navigate(controller: &ControllerRef) {
     // pick controller from route
     let hash = document().location().unwrap().hash().unwrap();
     let controller_new = match hash.as_str() {
@@ -46,19 +46,16 @@ fn navigate(state: &StateRef, controller: &ControllerRef<StateRef>) {
 fn main() {
     stdweb::initialize();
 
-    let state = State::get_from_storage();
-
-    let controller: ControllerRef<StateRef> = ControllerRef::new(Box::new(RootController::new()));
+    let controller: ControllerRef = ControllerRef::new(Box::new(RootController::new()));
 
     window().add_event_listener({
-        let state = state.clone();
         let controller = controller.clone();
 
         move |_: HashChangeEvent| {
-            navigate(&state, &controller);
+            navigate(&controller);
         }
     });
 
-    navigate(&state, &controller);
+    navigate(&controller);
     stdweb::event_loop();
 }
