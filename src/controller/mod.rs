@@ -1,7 +1,8 @@
 use std::boxed::Box;
-use std::cell::{Ref,RefCell};
+use std::cell::RefCell;
 use std::ops::Deref;
 use std::rc::Rc;
+use std::any::Any;
 
 //pub mod active_controller;
 //pub mod completed_controller;
@@ -12,6 +13,8 @@ pub mod root_controller;
 pub use root_controller::RootController;
 
 pub trait Controller {
+    fn as_any_mut(&mut self) -> &mut Any;
+
     // FIXME: return values
     // navigate sets up event listeners
     fn navigate(&mut self, controller_ref: &ControllerRef);

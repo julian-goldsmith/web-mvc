@@ -1,6 +1,3 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use serde_json;
 
 use stdweb::web::window;
@@ -36,6 +33,14 @@ impl State {
     pub fn save(&self) {
         // Save the state into local storage.
         let state_json = serde_json::to_string(&*self).unwrap();
-        window().local_storage().insert("state", state_json.as_str());
+        if !window().local_storage().insert("state", state_json.as_str()).is_ok() {
+            js! {
+                console.log("Saving state failed");
+            };
+        } else {
+            js! {
+                console.log("Successfully saved state");
+            };
+        };
     }
 }

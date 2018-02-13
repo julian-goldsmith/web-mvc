@@ -9,10 +9,6 @@ mod controller;
 mod model;
 
 use controller::*;
-use model::*;
-
-use std::cell::RefCell;
-use std::rc::Rc;
 
 use stdweb::web::{
     IEventTarget,
@@ -33,14 +29,11 @@ fn navigate(controller: &ControllerRef) {
 
     let mut controller_old = controller.replace(controller_new);
 
-    controller_old.leave(state);
+    controller_old.leave();
     drop(controller_old);
 
     let mut controller_borrow = controller.borrow_mut();
-    controller_borrow.navigate(state, controller);
-
-    let state_borrow = state.borrow();
-    state_borrow.save();
+    controller_borrow.navigate(controller);
 }
 
 fn main() {
