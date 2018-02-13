@@ -26,9 +26,11 @@ impl Controller<StateRef> for RootController {
     fn navigate<'a>(&mut self, state: &'a StateRef, controller_ref: &ControllerRef<StateRef>) {
         self.title_entry.add_event_listener({
             let mut state = state.clone();
+            let mut controller_ref = controller_ref.clone();
             move |event: KeyPressEvent|  {
                 let mut state = state.borrow_mut();
-                RootController::key_press(&mut state, event);
+                let mut controller = controller_ref.borrow_mut();
+                controller.key_press(&mut state, event);
             }
         });
     }
@@ -43,7 +45,7 @@ impl RootController {
         RootController { title_entry }
     }
 
-    fn key_press<'a>(state: &'a mut State, event: KeyPressEvent) {
+    fn key_press<'a>(&mut self, state: &'a mut State, event: KeyPressEvent) {
         if event.key() == "Enter" {
             event.prevent_default();
 
