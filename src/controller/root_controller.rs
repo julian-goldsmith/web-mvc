@@ -1,21 +1,17 @@
 use std::any::Any;
 
 use stdweb::unstable::TryInto;
-
+use stdweb::web::html_element::InputElement;
 use stdweb::web::{
     IEventTarget,
+    IParentNode,
     document,
 };
-
 use stdweb::web::event::{
     IEvent,
     IKeyboardEvent,
     KeyPressEvent,
 };
-
-use stdweb::web::IParentNode;
-
-use stdweb::web::html_element::InputElement;
 
 use controller::{Controller, ControllerRef};
 use model::{State, Todo};

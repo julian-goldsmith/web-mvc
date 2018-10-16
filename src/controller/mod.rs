@@ -4,11 +4,11 @@ use std::ops::Deref;
 use std::rc::Rc;
 use std::any::Any;
 
-//pub mod active_controller;
+pub mod active_controller;
 //pub mod completed_controller;
 pub mod root_controller;
 
-//pub use active_controller::ActiveController;
+pub use active_controller::ActiveController;
 //pub use completed_controller::CompletedController;
 pub use root_controller::RootController;
 
